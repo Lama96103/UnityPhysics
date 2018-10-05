@@ -4,8 +4,7 @@ using UnityEngine;
 
 public class CubeController : MonoBehaviour {
 
-    List<Vector3> location;
-    List<Quaternion> rotation;
+    List<PointInTime> pointInTime;
 
     public bool recording = false;
     public bool playback = false;
@@ -15,31 +14,31 @@ public class CubeController : MonoBehaviour {
     int frame = 0;
 
     public Rigidbody rig;
-    Collider coll;
+    public Collider coll;
+
+    public bool shouldDeactivateOnSpawn = true;
 
     // Use this for initialization
     void Start () {
-        location = new List<Vector3>();
-        rotation = new List<Quaternion>();
+        pointInTime = new List<PointInTime>();
         rig = GetComponent<Rigidbody>();
         coll = GetComponent<Collider>();
-        rig.isKinematic = true;
-        rig.detectCollisions = false;
-        coll.enabled = false;
         GameObject.FindGameObjectWithTag("GameController").GetComponent<GameController>().cubes.Add(this);
         rig.velocity = Vector3.zero;
-        Stop();
+
+        if(shouldDeactivateOnSpawn)
+            Stop();
 	}
 
     private void Update()
     {
         if (playback)
         {
-            transform.position = location[frame];
-            transform.rotation = rotation[frame];
+            transform.position = pointInTime[frame].location;
+            transform.rotation = pointInTime[frame].rotation;
 
             frame += speed;
-            if (frame >= location.Count)
+            if (frame >= pointInTime.Count)
             {
                 Stop();
             }
@@ -50,8 +49,7 @@ public class CubeController : MonoBehaviour {
     void FixedUpdate () {
         if (recording)
         {
-            location.Add(transform.position);
-            rotation.Add(transform.rotation);
+            pointInTime.Add(new PointInTime(transform.position, transform.rotation));
             frame++;
         }
     }
@@ -87,8 +85,8 @@ public class CubeController : MonoBehaviour {
 
     public int GetMaxFrame()
     {
-        if (location == null) return 0;
-        return location.Count-1;
+        if (pointInTime == null) return 0;
+        return pointInTime.Count-1;
     }
 
     public int GetFrame()
@@ -99,10 +97,10 @@ public class CubeController : MonoBehaviour {
     public void SetFrame(int frame)
     {
         this.frame = frame;
-        if(frame >= 0 && frame < location.Count)
+        if(frame >= 0 && frame < pointInTime.Count)
         {
-            transform.position = location[frame];
-            transform.rotation = rotation[frame];
+            transform.position = pointInTime[frame].location;
+            transform.rotation = pointInTime[frame].rotation;
         }
 
     }

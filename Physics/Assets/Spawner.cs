@@ -8,13 +8,11 @@ public class Spawner : MonoBehaviour {
     public int x;
     private int y;
     private int z;
-
-    GameController controller;
+    
 
     private float size;
 	// Use this for initialization
 	void Start () {
-        controller = GameObject.FindGameObjectWithTag("GameController").GetComponent<GameController>();
         size = objects.transform.localScale.x;
         Vector3 location = new Vector3(0, 0, 0);
         y = x;
